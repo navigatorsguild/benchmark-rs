@@ -1,16 +1,16 @@
-//! benchmark-rs - benchmarking library for Rust libraries
+//! A benchmarking library for Rust libraries
 //!
 //! This crate provides measurement facilities for rust libraries. For now only time measurements
 //! are supported. Next step will be to support disk , CPU and memory usage
 //!
-//! Each Benchmark<C, W, E> is repeated 'repeat' times for every workload point after it was ramped up for
-//! the same workload point. Any type W: Clone + Display can be used to specify workloads. It could
-//! be an integer that specifies the size of the workload, a path to a file or a key that can fetch
-//! the workload from the benchmark configuration. See examples below.
+//! Each benchmark is repeated `repeat` times for every workload point after it was ramped up for
+//! the same workload point. Any type `W: Clone + Display` can be used to specify workloads. It could
+//! be an integer that specifies the size of the workload, a path to a file or a key that we can use
+//! to fetch the workload from the benchmark configuration. See examples below.
 //!
 //! ## Examples
 //! A simple benchmark that measures execution time for increasing workloads. In this case the workload is simulated by
-//! by a u64 value passed to thread::sleep function
+//! by a `u64` value passed to `thread::sleep` function
 //! ```rust
 //! mod example {
 //!     use std::thread;
@@ -35,8 +35,8 @@
 //! }
 //! ```
 //!
-//! A more complex example that shows how to use Benchmark configuration, control the stopwatch from
-//! within the benchmark, and how to show and analyze results.
+//! A more complex example that shows how to use Benchmark configuration, how to control the
+//! stopwatch from within the benchmark, and how to show and analyze results.
 //! ```rust
 //! mod another_example {
 //!     use std::collections::{BTreeMap};
