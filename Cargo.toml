@@ -1,6 +1,14 @@
 [package]
 name = "benchmark-rs"
-version = "0.0.1-alpha"
+authors = ["Giora Kosoi"]
+license = "MIT OR Apache-2.0"
+description = "Benchamrks for Rust libraries"
+homepage = "https://www.navigatorsguild.io/"
+repository = "https://github.com/navigatorsguild/benchmark-rs"
+readme = "README.md"
+keywords = ["benchmark"]
+categories = ["development-tools::profiling"]
+version = "0.0.2-alpha"
 edition = "2021"
 
 [dependencies]
