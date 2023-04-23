@@ -8,97 +8,96 @@
 //! be an integer that specifies the size of the workload, a path to a file or a key that we can use
 //! to fetch the workload from the benchmark configuration. See examples below.
 //!
-//! ## Examples
+//! # Issues
+//! Issues are welcome and appreciated. Please submit to https://!ithub.com/navigatorsguild/benchmark-rs/issues
+//!
+//! # Examples
 //! A simple benchmark that measures execution time for increasing workloads. In this case the workload is simulated by
 //! by a `u64` value passed to `thread::sleep` function
-//! ```rust
-//! mod example {
-//!     use std::thread;
-//!     use std::time::Duration;
-//!     use benchmark_rs::{Benchmarks, StopWatch};
+//! ```
+//! use std::thread;
+//! use std::time::Duration;
+//! use benchmark_rs::{Benchmarks, StopWatch};
 //!
-//!     fn example(_stop_watch: &mut StopWatch, _config: &str, work: u64) -> Result<(), anyhow::Error> {
-//!         thread::sleep(Duration::from_millis(work));
-//!         Ok(())
-//!     }
+//! fn example(_stop_watch: &mut StopWatch, _config: &str, work: u64) -> Result<(), anyhow::Error> {
+//!     thread::sleep(Duration::from_millis(work));
+//!     Ok(())
+//! }
 //!
-//!     #[test]
-//!     fn benchmark_example() -> Result<(), anyhow::Error> {
-//!         let mut benchmarks = Benchmarks::new("Example");
-//!         benchmarks.add("A Simple Benchmark", example, "No Configuration", (1..=10).collect(), 2, 1)?;
-//!         benchmarks.run()?;
+//! fn main() -> Result<(), anyhow::Error> {
+//!     let mut benchmarks = Benchmarks::new("Example");
+//!     benchmarks.add("A Simple Benchmark", example, "No Configuration", (1..=10).collect(), 2, 1)?;
+//!     benchmarks.run()?;
 //!
-//!         let summary = benchmarks.summary_as_json();
-//!         println!("Summary: {summary}");
-//!         Ok(())
-//!     }
+//!     let summary = benchmarks.summary_as_json();
+//!     println!("Summary: {summary}");
+//!     Ok(())
 //! }
 //! ```
 //!
 //! A more complex example that shows how to use Benchmark configuration, how to control the
 //! stopwatch from within the benchmark, and how to show and analyze results.
-//! ```rust
-//! mod another_example {
-//!     use std::collections::{BTreeMap};
-//!     use std::fmt::{Display, Formatter};
-//!     use std::thread;
-//!     use std::time::Duration;
-//!     use benchmark_rs::{Benchmarks, StopWatch};
+//! ```
+//! use std::collections::BTreeMap;
+//! use std::fmt::{Display, Formatter};
+//! use std::thread;
+//! use std::time::Duration;
 //!
-//!     #[derive(Clone)]
-//!     struct Config {
-//!         pub workloads: BTreeMap<u64, Duration>,
-//!     }
+//! use benchmark_rs::{Benchmarks, StopWatch};
 //!
-//!     impl Display for Config {
-//!         fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-//!             for k in self.workloads.keys() {
-//!                 write!(f, "{k} ")?;
-//!             }
-//!             Ok(())
+//! #[derive(Clone)]
+//! struct Config {
+//!     pub workloads: BTreeMap<u64, Duration>,
+//! }
+//!
+//! impl Display for Config {
+//!     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+//!         for k in self.workloads.keys() {
+//!             write!(f, "{k} ")?;
 //!         }
-//!     }
-//!
-//!     fn example(stop_watch: &mut StopWatch, config: Config, work: u64) -> Result<(), anyhow::Error> {
-//!         stop_watch.pause();
-//!         // perform potentially lengthy preparation that will not reflect in the measurement
-//!         let sleep_time = config.workloads.get(&work).unwrap().clone();
-//!         stop_watch.resume();
-//!         // perform measured computation
-//!         thread::sleep(sleep_time);
-//!         stop_watch.pause();
-//!         // perform potentially lengthy cleanup
-//!         Ok(())
-//!     }
-//!
-//!     #[test]
-//!     fn another_benchmark_example() -> Result<(), anyhow::Error> {
-//!         let mut benchmarks = Benchmarks::new("Example");
-//!         let workloads: BTreeMap<u64, Duration> = (0..=10).map(|i| (i, Duration::from_millis(i))).collect();
-//!         benchmarks.add("Another Benchmark", example, Config { workloads }, (1..=10).collect(), 2, 1)?;
-//!         benchmarks.run()?;
-//!
-//!         let summary = benchmarks.summary_as_json();
-//!         println!("Summary: {summary}");
-//!         let csv_headers = benchmarks.csv_headers();
-//!         let csv_data = benchmarks.summary_as_csv();
-//!         for (k, v) in csv_data {
-//!             println!("Benchmark name: {k}");
-//!             println!("{csv_headers}");
-//!             for line in v {
-//!                 println!("{line}")
-//!             }
-//!         }
-//!
-//!         // ignore new series
-//!         let analysis_result = benchmarks.analyze(None, 5.0)?;
-//!         println!("Analysis result: {}", analysis_result.to_string());
-//!         // compare results with threshold of 5 percent
-//!         let analysis_result = benchmarks.analyze(Some(summary), 5.0)?;
-//!         println!("Analysis result: {}", analysis_result.to_string());
 //!         Ok(())
 //!     }
 //! }
+//!
+//! fn example(stop_watch: &mut StopWatch, config: Config, work: u64) -> Result<(), anyhow::Error> {
+//!     stop_watch.pause();
+//!     // perform potentially lengthy preparation that will not reflect in the measurement
+//!     let sleep_time = config.workloads.get(&work).unwrap().clone();
+//!     stop_watch.resume();
+//!     // perform measured computation
+//!     thread::sleep(sleep_time);
+//!     stop_watch.pause();
+//!     // perform potentially lengthy cleanup
+//!     Ok(())
+//! }
+//!
+//! fn main() -> Result<(), anyhow::Error> {
+//!     let mut benchmarks = Benchmarks::new("Example");
+//!     let workloads: BTreeMap<u64, Duration> = (0..=10).map(|i| (i, Duration::from_millis(i))).collect();
+//!     benchmarks.add("Another Benchmark", example, Config { workloads }, (1..=10).collect(), 2, 1)?;
+//!     benchmarks.run()?;
+//!
+//!     let summary = benchmarks.summary_as_json();
+//!     println!("Summary: {summary}");
+//!     let csv_headers = benchmarks.csv_headers();
+//!     let csv_data = benchmarks.summary_as_csv();
+//!     for (k, v) in csv_data {
+//!         println!("Benchmark name: {k}");
+//!         println!("{csv_headers}");
+//!         for line in v {
+//!             println!("{line}")
+//!         }
+//!     }
+//!
+//!     // ignore new series
+//!     let analysis_result = benchmarks.analyze(None, 5.0)?;
+//!     println!("Analysis result: {}", analysis_result.to_string());
+//!     // compare results with threshold of 5 percent
+//!     let analysis_result = benchmarks.analyze(Some(summary), 5.0)?;
+//!     println!("Analysis result: {}", analysis_result.to_string());
+//!     Ok(())
+//! }
+//! ```
 //!
 pub mod benchmarks;
 pub mod benchmark_comparison;
