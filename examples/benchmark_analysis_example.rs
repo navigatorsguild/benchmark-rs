@@ -1,47 +1,3 @@
-![Maintenance](https://img.shields.io/badge/maintenance-activly--developed-brightgreen.svg)
-
-# benchmark-rs
-
-A benchmarking library for Rust libraries
-
-This crate provides measurement facilities for rust libraries. For now only time measurements
-are supported. Next step will be to support disk , CPU and memory usage
-
-Each benchmark is repeated `repeat` times for every workload point after it was ramped up for
-the same workload point. Any type `W: Clone + Display` can be used to specify workloads. It could
-be an integer that specifies the size of the workload, a path to a file or a key that we can use
-to fetch the workload from the benchmark configuration. See examples below.
-
-## Issues
-Issues are welcome and appreciated. Please submit to https://!ithub.com/navigatorsguild/benchmark-rs/issues
-
-## Examples
-A simple benchmark that measures execution time for increasing workloads. In this case the workload is simulated by
-by a `u64` value passed to `thread::sleep` function
-```rust
-use std::thread;
-use std::time::Duration;
-use benchmark_rs::{Benchmarks, StopWatch};
-
-fn example(_stop_watch: &mut StopWatch, _config: &str, work: u64) -> Result<(), anyhow::Error> {
-    thread::sleep(Duration::from_millis(work));
-    Ok(())
-}
-
-fn main() -> Result<(), anyhow::Error> {
-    let mut benchmarks = Benchmarks::new("Example");
-    benchmarks.add("A Simple Benchmark", example, "No Configuration", (1..=10).collect(), 2, 1)?;
-    benchmarks.run()?;
-
-    let summary = benchmarks.summary_as_json();
-    println!("Summary: {summary}");
-    Ok(())
-}
-```
-
-A more complex example that shows how to use Benchmark configuration, how to control the
-stopwatch from within the benchmark, and how to show and analyze results.
-```rust
 use std::collections::BTreeMap;
 use std::fmt::{Display, Formatter};
 use std::thread;
@@ -101,7 +57,3 @@ fn main() -> Result<(), anyhow::Error> {
     println!("Analysis result: {}", analysis_result.to_string());
     Ok(())
 }
-```
-
-
-License: MIT OR Apache-2.0
