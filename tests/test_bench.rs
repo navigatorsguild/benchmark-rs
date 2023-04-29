@@ -2,9 +2,9 @@ use std::fmt::{Display, Formatter};
 use std::thread::sleep;
 use std::time::Duration;
 use rand::Rng;
-use benchmark_rs::Benchmarks;
-use benchmark_rs::BenchmarkComparison;
-use benchmark_rs::StopWatch;
+use benchmark_rs::benchmarks::Benchmarks;
+use benchmark_rs::benchmark_comparison::BenchmarkComparison;
+use benchmark_rs::stopwatch::StopWatch;
 
 #[derive(Clone)]
 struct BenchConfig {

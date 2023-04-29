@@ -17,7 +17,8 @@
 //! ```
 //! use std::thread;
 //! use std::time::Duration;
-//! use benchmark_rs::{Benchmarks, StopWatch};
+//! use benchmark_rs::benchmarks::Benchmarks;
+//! use benchmark_rs::stopwatch::StopWatch;
 //!
 //! fn example(_stop_watch: &mut StopWatch, _config: &str, work: u64) -> Result<(), anyhow::Error> {
 //!     thread::sleep(Duration::from_millis(work));
@@ -43,7 +44,8 @@
 //! use std::thread;
 //! use std::time::Duration;
 //!
-//! use benchmark_rs::{Benchmarks, StopWatch};
+//! use benchmark_rs::benchmarks::Benchmarks;
+//! use benchmark_rs::stopwatch::StopWatch;
 //!
 //! #[derive(Clone)]
 //! struct Config {
@@ -108,10 +110,3 @@ pub mod analysis_result;
 pub mod stopwatch;
 pub mod disk_usage;
 pub mod series_summary;
-
-pub type Benchmarks<C, W, E> = benchmarks::Benchmarks<C, W, E>;
-pub type BenchmarkComparison = benchmark_comparison::BenchmarkComparison;
-pub type StopWatch = stopwatch::StopWatch;
-pub type Summary = summary::Summary;
-pub type RunSummary = run_summary::RunSummary;
-pub type SeriesSummary = series_summary::SeriesSummary;

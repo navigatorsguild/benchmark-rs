@@ -1,6 +1,7 @@
 use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
-use benchmark_rs::{Benchmarks, StopWatch};
+use benchmark_rs::benchmarks::Benchmarks;
+use benchmark_rs::stopwatch::StopWatch;
 
 pub type GenericTestError = Box<dyn std::error::Error + Send + Sync + 'static>;
 

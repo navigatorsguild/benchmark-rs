@@ -1,6 +1,7 @@
 use std::thread;
 use std::time::Duration;
-use benchmark_rs::{Benchmarks, StopWatch};
+use benchmark_rs::benchmarks::Benchmarks;
+use benchmark_rs::stopwatch::StopWatch;
 
 fn example(_stop_watch: &mut StopWatch, _config: &str, work: u64) -> Result<(), anyhow::Error> {
     thread::sleep(Duration::from_millis(work));

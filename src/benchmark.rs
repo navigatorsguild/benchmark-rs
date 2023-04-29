@@ -1,9 +1,9 @@
 use std::fmt::Display;
 use anyhow::Error;
 use statrs::statistics::{Distribution, Max, Median, Min};
-use crate::RunSummary;
-use crate::SeriesSummary;
-use crate::StopWatch;
+use crate::run_summary::RunSummary;
+use crate::series_summary::SeriesSummary;
+use crate::stopwatch::StopWatch;
 
 pub(crate) struct Benchmark<C, W, E> where
     C: Clone + Display,

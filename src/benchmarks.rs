@@ -1,13 +1,15 @@
-use anyhow::{anyhow, Error};
 use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
+
+use anyhow::{anyhow, Error};
+
 use crate::analysis_result::AnalysisResult;
-use crate::BenchmarkComparison;
-use crate::RunSummary;
-use crate::{StopWatch};
 use crate::benchmark::Benchmark;
-use crate::SeriesSummary;
-use crate::Summary;
+use crate::benchmark_comparison::BenchmarkComparison;
+use crate::run_summary::RunSummary;
+use crate::series_summary::SeriesSummary;
+use crate::stopwatch::StopWatch;
+use crate::summary::Summary;
 
 /// Run and analyze a benchmarks suite
 ///
