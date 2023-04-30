@@ -9,7 +9,7 @@
 //! to fetch the workload from the benchmark configuration. See examples below.
 //!
 //! # Issues
-//! Issues are welcome and appreciated. Please submit to https://!ithub.com/navigatorsguild/benchmark-rs/issues
+//! Issues are welcome and appreciated. Please submit to https://github.com/navigatorsguild/benchmark-rs/issues
 //!
 //! # Examples
 //! A simple benchmark that measures execution time for increasing workloads. In this case the workload is simulated by
