@@ -1,7 +1,10 @@
 use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
+use std::fs::{create_dir_all, File};
+use std::io::{BufWriter, Write};
+use std::path::PathBuf;
 
-use anyhow::{anyhow, Error};
+use anyhow::{anyhow, Context, Error};
 
 use crate::analysis_result::AnalysisResult;
 use crate::benchmark::Benchmark;
@@ -94,20 +97,73 @@ impl<C, W, E> Benchmarks<C, W, E> where
         serde_json::to_string_pretty(&summary).unwrap()
     }
 
-    /// Produce headers for [Self::summary_as_csv] method
-    pub fn csv_headers(&self) -> String {
-        SeriesSummary::csv_headers()
-    }
-
     /// Produce summary for each series as vector of CSV lines. The key for series data is the
     /// series name used in [Self::add] method, values are placed as the headers returned by [Self::csv_headers]
-    pub fn summary_as_csv(&self) -> HashMap<String, Vec<String>> {
+    pub fn summary_as_csv(&self, with_headers: bool, with_config: bool) -> HashMap<String, Vec<String>> {
         let mut result = HashMap::new();
         for (name, summary) in &self.summaries {
-            result.insert(name.clone(), summary.as_csv());
+            result.insert(name.clone(), summary.as_csv(with_headers, with_config));
         }
         result
     }
+
+    /// Save each benchmark summary to its own CSV file
+    ///
+    /// The name of each CSV file is the name of the benchmark.
+    /// * `dir` - directory to store results. If doesn't exist - create it.
+    /// * `with_headers` - add column headers on the first line
+    /// * `with_config` - add the configuration string in the headers row
+    ///
+    /// ```
+    /// use std::path::PathBuf;
+    /// use benchmark_rs::benchmarks::Benchmarks;
+    /// let benchmarks = Benchmarks::<usize, usize, anyhow::Error>::new("example");
+    /// benchmarks.save_to_csv(PathBuf::from("./target/benchmarks"), true, true).expect("failed to save to csv");
+    /// ```
+    pub fn save_to_csv(&self, dir: PathBuf, with_headers: bool, with_config: bool) -> Result<(), anyhow::Error> {
+        if !dir.exists() {
+            create_dir_all(&dir)?;
+        }
+        let series_csv = self.summary_as_csv(with_headers, with_config);
+        for (name, series) in series_csv {
+            let mut results_path = dir.join(name.clone());
+            results_path.set_extension("csv");
+            let mut results_writer = BufWriter::new(
+                File::create(&results_path)
+                    .with_context(|| anyhow!("path: {}", results_path.to_string_lossy()))?
+            );
+            for record in series {
+                writeln!(results_writer, "{}", record)?;
+            }
+        }
+        Ok(())
+    }
+
+    /// Save the summary to a json file.
+    ///
+    /// The name of the JSON file is the name of the suite of benchmarks.
+    /// If dir doesn't exist - create it.
+    /// ```
+    /// use std::path::PathBuf;
+    /// use anyhow::anyhow;
+    /// use benchmark_rs::benchmarks::Benchmarks;
+    /// let benchmarks = Benchmarks::<usize, usize, anyhow::Error>::new("example");
+    /// benchmarks.save_to_json(PathBuf::from("./target/benchmarks")).expect("failed to save to json");
+    /// ```
+    pub fn save_to_json(&self, dir: PathBuf) -> Result<(), anyhow::Error> {
+        if !dir.exists() {
+            create_dir_all(&dir)?;
+        }
+        let mut results_path = dir.join(self.name());
+        results_path.set_extension("json");
+        let mut writer = BufWriter::new(
+            File::create(&results_path)
+                .with_context(|| anyhow!("path: {}", results_path.to_string_lossy()))?
+        );
+        writer.write(self.summary_as_json().as_bytes())?;
+        Ok(())
+    }
+
 
     /// Produce description of configurations for each series. The key for series config is the
     /// series name used in [Self::add] method.

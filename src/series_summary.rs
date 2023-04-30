@@ -26,12 +26,20 @@ impl SeriesSummary {
         &self.runs
     }
 
-    pub(crate) fn csv_headers() -> String {
-        format!("{}\t{}", "point", RunSummary::csv_headers())
+    fn csv_headers(&self, with_config: bool) -> String {
+        if with_config {
+            format!("{}\t{}\t\tconfiguration: {}", "point", RunSummary::csv_headers(), self.config)
+        }else {
+            format!("{}\t{}", "point", RunSummary::csv_headers())
+
+        }
     }
 
-    pub(crate) fn as_csv(&self) -> Vec<String> {
+    pub(crate) fn as_csv(&self, with_headers: bool, with_config: bool) -> Vec<String> {
         let mut result = Vec::new();
+        if with_headers {
+            result.push(self.csv_headers(with_config));
+        }
         for (point, summary) in &self.runs {
             result.push(format!("{}\t{}", point, summary.as_csv())) ;
         }

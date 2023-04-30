@@ -196,10 +196,7 @@ fn test_csv() -> Result<(), anyhow::Error> {
     benchmarks.add("sort-n", bench_sort, BenchConfig::new(0), work, 2, 1)?;
     benchmarks.run()?;
 
-    let _headers = benchmarks.csv_headers();
-    // println!("headers: {headers}");
-
-    let _series_csv = benchmarks.summary_as_csv();
+    let _series_csv = benchmarks.summary_as_csv(true, true);
     for (_key, _value) in _series_csv {
         // println!("series: {key}");
         // println!("csv: {value:?}");

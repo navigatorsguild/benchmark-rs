@@ -81,11 +81,9 @@
 //!
 //!     let summary = benchmarks.summary_as_json();
 //!     println!("Summary: {summary}");
-//!     let csv_headers = benchmarks.csv_headers();
-//!     let csv_data = benchmarks.summary_as_csv();
+//!     let csv_data = benchmarks.summary_as_csv(true, true);
 //!     for (k, v) in csv_data {
 //!         println!("Benchmark name: {k}");
-//!         println!("{csv_headers}");
 //!         for line in v {
 //!             println!("{line}")
 //!         }

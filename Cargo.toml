@@ -8,7 +8,7 @@ repository = "https://github.com/navigatorsguild/benchmark-rs"
 readme = "README.md"
 keywords = ["benchmark"]
 categories = ["development-tools::profiling"]
-version = "0.0.5-alpha"
+version = "0.0.6-alpha"
 edition = "2021"
 
 [badges]
@@ -18,9 +18,11 @@ maintenance = { status = "actively-developed" }
 anyhow = "1.0.70"
 chrono = "0.4.24"
 json = "0.12.4"
-rand = "0.8.5"
 serde = { version = "1.0.159", features = ["derive"] }
 serde_json = "1.0.95"
 statrs = "0.16.0"
 num-traits = "0.2.15"
+
+[dev-dependencies]
+rand = "0.8.5"
 thiserror = "1.0.40"
