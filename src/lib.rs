@@ -12,6 +12,12 @@
 //! Issues are welcome and appreciated. Please submit to https://github.com/navigatorsguild/benchmark-rs/issues
 //!
 //! # Examples
+//! A real world example can be found at
+//! [command-executor](https://github.com/navigatorsguild/command-executor) project
+//! [blocking_queue.rs](https://github.com/navigatorsguild/command-executor/blob/main/benches/blocking_queue.rs)
+//! benchmark and at [Benchmarks](https://github.com/navigatorsguild/command-executor/wiki/Benchmarks)
+//! wiki page which was built from the generated data.
+//!
 //! A simple benchmark that measures execution time for increasing workloads. In this case the workload is simulated by
 //! by a `u64` value passed to `thread::sleep` function
 //! ```
