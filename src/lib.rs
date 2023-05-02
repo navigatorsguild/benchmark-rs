@@ -18,6 +18,8 @@
 //! benchmark and at [Benchmarks](https://github.com/navigatorsguild/command-executor/wiki/Benchmarks)
 //! wiki page which was built from the generated data.
 //!
+//! ![link](https://user-images.githubusercontent.com/122003456/235414598-727d804a-b8ad-4520-871b-5fd8be33bf44.png)
+//!
 //! A simple benchmark that measures execution time for increasing workloads. In this case the workload is simulated by
 //! by a `u64` value passed to `thread::sleep` function
 //! ```

@@ -6,9 +6,9 @@ description = "Benchamrks for Rust libraries"
 homepage = "https://www.navigatorsguild.io/"
 repository = "https://github.com/navigatorsguild/benchmark-rs"
 readme = "README.md"
-keywords = ["benchmark"]
+keywords = ["bench", "benchmark", "benchmarking", "profiling"]
 categories = ["development-tools::profiling"]
-version = "0.0.9-alpha"
+version = "0.0.10-alpha"
 edition = "2021"
 
 [badges]
