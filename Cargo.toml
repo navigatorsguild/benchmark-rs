@@ -8,7 +8,7 @@ repository = "https://github.com/navigatorsguild/benchmark-rs"
 readme = "README.md"
 keywords = ["bench", "benchmark", "benchmarking", "profiling"]
 categories = ["development-tools::profiling"]
-version = "0.0.10-alpha"
+version = "0.1.0"
 edition = "2021"
 
 [badges]
