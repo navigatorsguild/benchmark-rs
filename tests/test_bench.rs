@@ -96,6 +96,12 @@ fn test_analyze_identical() -> Result<(), anyhow::Error> {
 #[test]
 fn test_analyze_different_runs_same_configuration() -> Result<(), anyhow::Error> {
     let work: Vec<usize> = (0..=3).map(|i| i * 100 as usize).collect();
+    // ramp-up?
+    let mut benchmarks0 = Benchmarks::new("Test");
+    benchmarks0.add("sort n", bench_sort, BenchConfig::new(0), work.clone(), 30, 1)?;
+    benchmarks0.add("sort n and rest", bench_sort, BenchConfig::new(10), work.clone(), 2, 1)?;
+    benchmarks0.run()?;
+
     let mut benchmarks = Benchmarks::new("Test");
     benchmarks.add("sort n", bench_sort, BenchConfig::new(0), work.clone(), 30, 1)?;
     benchmarks.add("sort n and rest", bench_sort, BenchConfig::new(10), work.clone(), 2, 1)?;
