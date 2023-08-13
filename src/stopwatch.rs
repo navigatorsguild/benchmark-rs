@@ -44,7 +44,9 @@ impl StopWatch {
     /// Stop duration measurement
     pub fn stop(&mut self) {
         if !self.is_stopped {
-            self.accumulated.add_assign(Duration::from_nanos(self.checkpoint.elapsed().as_nanos() as u64));
+            self.accumulated.add_assign(Duration::from_nanos(
+                self.checkpoint.elapsed().as_nanos() as u64
+            ));
             self.is_stopped = true;
         }
     }
@@ -65,15 +67,28 @@ impl Display for StopWatch {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut accumulated = self.accumulated;
         if !self.is_stopped {
-            accumulated.add_assign(Duration::from_nanos(self.checkpoint.elapsed().as_nanos() as u64));
+            accumulated.add_assign(Duration::from_nanos(
+                self.checkpoint.elapsed().as_nanos() as u64
+            ));
         }
         let datetime = DateTime::<Utc>::from_utc(
-            NaiveDateTime::from_timestamp_opt(accumulated.as_secs() as i64, accumulated.subsec_nanos()).unwrap(), Utc);
+            NaiveDateTime::from_timestamp_opt(
+                accumulated.as_secs() as i64,
+                accumulated.subsec_nanos(),
+            )
+            .unwrap(),
+            Utc,
+        );
         let formatted_time = datetime.format("%H:%M:%S.%3f").to_string();
         f.write_fmt(format_args!("{}", formatted_time))
     }
 }
 
+impl Default for StopWatch {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 #[cfg(test)]
 mod tests {

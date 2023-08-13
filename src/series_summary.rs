@@ -1,12 +1,12 @@
-use serde::{Deserialize, Serialize};
 use crate::run_summary::RunSummary;
+use serde::{Deserialize, Serialize};
 
 /// Summary of series of runs
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SeriesSummary {
     name: String,
     config: String,
-    runs: Vec<(String, RunSummary)>
+    runs: Vec<(String, RunSummary)>,
 }
 
 impl SeriesSummary {
@@ -28,10 +28,14 @@ impl SeriesSummary {
 
     fn csv_headers(&self, with_config: bool) -> String {
         if with_config {
-            format!("{}\t{}\t\tconfiguration: {}", "point", RunSummary::csv_headers(), self.config)
-        }else {
-            format!("{}\t{}", "point", RunSummary::csv_headers())
-
+            format!(
+                "{},{},,configuration: {}",
+                "point",
+                RunSummary::csv_headers(),
+                self.config
+            )
+        } else {
+            format!("{},{}", "point", RunSummary::csv_headers())
         }
     }
 
@@ -41,7 +45,7 @@ impl SeriesSummary {
             result.push(self.csv_headers(with_config));
         }
         for (point, summary) in &self.runs {
-            result.push(format!("{}\t{}", point, summary.as_csv())) ;
+            result.push(format!("{},{}", point, summary.as_csv()));
         }
         result
     }

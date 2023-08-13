@@ -1,14 +1,15 @@
-use std::fmt::Display;
-use anyhow::Error;
-use statrs::statistics::{Distribution, Max, Median, Min};
 use crate::run_summary::RunSummary;
 use crate::series_summary::SeriesSummary;
 use crate::stopwatch::StopWatch;
+use anyhow::Error;
+use statrs::statistics::{Distribution, Max, Median, Min};
+use std::fmt::Display;
 
-pub(crate) struct Benchmark<C, W, E> where
+pub(crate) struct Benchmark<C, W, E>
+where
     C: Clone + Display,
     W: Clone + Display,
-    Error: From<E>
+    Error: From<E>,
 {
     name: String,
     config: C,
@@ -18,10 +19,11 @@ pub(crate) struct Benchmark<C, W, E> where
     ramp_up: usize,
 }
 
-impl<C, W, E> Benchmark<C, W, E> where
+impl<C, W, E> Benchmark<C, W, E>
+where
     C: Clone + Display,
     W: Clone + Display,
-    Error: From<E>
+    Error: From<E>,
 {
     pub(crate) fn new(
         name: String,
@@ -71,9 +73,7 @@ impl<C, W, E> Benchmark<C, W, E> where
             match error {
                 None => {
                     let data: statrs::statistics::Data<Vec<f64>> = statrs::statistics::Data::new(
-                        durations.into_iter()
-                            .map(|d| d.as_nanos() as f64)
-                            .collect()
+                        durations.into_iter().map(|d| d.as_nanos() as f64).collect(),
                     );
 
                     let run_summary = RunSummary::new(
@@ -94,14 +94,8 @@ impl<C, W, E> Benchmark<C, W, E> where
         }
 
         match error {
-            None => {
-                Ok(
-                    series_summary
-                )
-            }
-            Some(e) => {
-                Err(e)
-            }
+            None => Ok(series_summary),
+            Some(e) => Err(e),
         }
     }
 }

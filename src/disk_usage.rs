@@ -5,17 +5,20 @@ use std::path::PathBuf;
 #[allow(dead_code)]
 pub fn disk_usage(path: &PathBuf) -> std::io::Result<u64> {
     if !path.exists() {
-        Err(std::io::Error::new(ErrorKind::Other, format!("path does not exist: [{}]", path.to_string_lossy())))
+        Err(std::io::Error::new(
+            ErrorKind::Other,
+            format!("path does not exist: [{}]", path.to_string_lossy()),
+        ))
     } else {
         let mut size: u64 = 0;
         if path.is_dir() {
             let dir = std::fs::read_dir(path)?;
             for result in dir.into_iter() {
                 let entry = result.unwrap();
-                size = size + disk_usage(&entry.path())?;
+                size += disk_usage(&entry.path())?;
             }
         } else if path.is_file() {
-            size = size + path.metadata().unwrap().len();
+            size += path.metadata().unwrap().len();
         } else {
             // ignore
         }
@@ -42,14 +45,23 @@ pub fn to_human(size: u64) -> String {
 
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
     use crate::disk_usage::{disk_usage, to_human};
+    use std::path::PathBuf;
 
     #[test]
     fn test_disk_usage() -> std::io::Result<()> {
-        assert_eq!(to_human(disk_usage(&PathBuf::from("./tests/fixtures/1.5K/512"))?), "512".to_string());
-        assert_eq!(to_human(disk_usage(&PathBuf::from("./tests/fixtures/1.5K/1K"))?), "1.000K".to_string());
-        assert_eq!(to_human(disk_usage(&PathBuf::from("./tests/fixtures/1.5K/"))?), "1.500K".to_string());
+        assert_eq!(
+            to_human(disk_usage(&PathBuf::from("./tests/fixtures/1.5K/512"))?),
+            "512".to_string()
+        );
+        assert_eq!(
+            to_human(disk_usage(&PathBuf::from("./tests/fixtures/1.5K/1K"))?),
+            "1.000K".to_string()
+        );
+        assert_eq!(
+            to_human(disk_usage(&PathBuf::from("./tests/fixtures/1.5K/"))?),
+            "1.500K".to_string()
+        );
         Ok(())
     }
 }

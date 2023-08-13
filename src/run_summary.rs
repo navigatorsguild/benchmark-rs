@@ -46,7 +46,7 @@ impl RunSummary {
             median_sec: median as f64 / 1e9,
             median_str: Self::format_elapsed_nanos(median),
             std_dev,
-            std_dev_sec: std_dev.and_then(|x| Some(x / 1e9)),
+            std_dev_sec: std_dev.map(|x| x / 1e9),
             std_dev_str: Self::format_std_dev_nanos(std_dev),
         }
     }
@@ -72,50 +72,45 @@ impl RunSummary {
     }
 
     fn format_elapsed_nanos(t: u64) -> String {
-        let (secs, nsecs) = ((t / 1000_000_000) as i64, (t % 1000_000_000) as u32);
-        let datetime = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp_opt(secs, nsecs).unwrap(), Utc);
+        let (secs, nsecs) = ((t / 1_000_000_000) as i64, (t % 1_000_000_000) as u32);
+        let datetime =
+            DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp_opt(secs, nsecs).unwrap(), Utc);
         datetime.format("%H:%M:%S.%3f").to_string()
     }
 
     fn format_std_dev_nanos(std_dev_opt: Option<f64>) -> String {
         match std_dev_opt {
-            None => {
-                "null".to_string()
-            }
-            Some(std_dev) => {
-                match std_dev.to_i64() {
-                    None => {
-                        "null".to_string()
-                    }
-                    Some(t) => {
-                        let (secs, nsecs) = ((t / 1000_000_000) as i64, (t % 1000_000_000) as u32);
-                        let datetime = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp_opt(secs, nsecs).unwrap(), Utc);
-                        datetime.format("%H:%M:%S.%3f").to_string()
-                    }
+            None => "null".to_string(),
+            Some(std_dev) => match std_dev.to_i64() {
+                None => "null".to_string(),
+                Some(t) => {
+                    let (secs, nsecs) = ((t / 1_000_000_000), (t % 1_000_000_000) as u32);
+                    let datetime = DateTime::<Utc>::from_utc(
+                        NaiveDateTime::from_timestamp_opt(secs, nsecs).unwrap(),
+                        Utc,
+                    );
+                    datetime.format("%H:%M:%S.%3f").to_string()
                 }
-            }
+            },
         }
     }
 
     pub(crate) fn csv_headers() -> String {
-        format!("{}\t{}\t{}\t{}\t{}\t{}",
-                "ramp_up",
-                "repeat",
-                "min_sec",
-                "max_sec",
-                "median_sec",
-                "std_dev_sec",
+        format!(
+            "{},{},{},{},{},{}",
+            "ramp_up", "repeat", "min_sec", "max_sec", "median_sec", "std_dev_sec",
         )
     }
 
     pub(crate) fn as_csv(&self) -> String {
-        format!("{}\t{}\t{}\t{}\t{}\t{}",
-                self.ramp_up,
-                self.repeat,
-                self.min_sec,
-                self.max_sec,
-                self.median_sec,
-                self.std_dev_sec.unwrap_or(0.0),
+        format!(
+            "{},{},{},{},{},{}",
+            self.ramp_up,
+            self.repeat,
+            self.min_sec,
+            self.max_sec,
+            self.median_sec,
+            self.std_dev_sec.unwrap_or(0.0),
         )
     }
 }

@@ -1,13 +1,17 @@
-use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
 use crate::benchmark_comparison::BenchmarkComparison;
+use serde::{Deserialize, Serialize};
+use std::{
+    collections::{HashMap, HashSet},
+    fmt::Display,
+};
 
 /// Result of the comparison of two benchmarks
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AnalysisResult {
     name: String,
     new_series: HashSet<String>,
-    results: HashMap<String, BenchmarkComparison>,
+    equal_series: HashMap<String, HashMap<String, BenchmarkComparison>>,
+    divergent_series: HashMap<String, HashMap<String, BenchmarkComparison>>,
 }
 
 impl AnalysisResult {
@@ -15,7 +19,8 @@ impl AnalysisResult {
         AnalysisResult {
             name,
             new_series: Default::default(),
-            results: Default::default(),
+            equal_series: Default::default(),
+            divergent_series: Default::default(),
         }
     }
 
@@ -23,8 +28,22 @@ impl AnalysisResult {
         self.new_series.insert(name);
     }
 
-    pub(crate) fn add(&mut self, name: String, ordering: BenchmarkComparison) {
-        self.results.insert(name, ordering);
+    pub(crate) fn add(&mut self, name: String, comparisons: HashMap<String, BenchmarkComparison>) {
+        let equal = comparisons
+            .iter()
+            .fold(
+                true,
+                |equal, (_, benchmark_comparison)| match benchmark_comparison {
+                    BenchmarkComparison::Less { .. } => false,
+                    BenchmarkComparison::Equal { .. } => equal,
+                    BenchmarkComparison::Greater { .. } => false,
+                },
+            );
+        if equal {
+            self.equal_series.insert(name, comparisons);
+        } else {
+            self.divergent_series.insert(name, comparisons);
+        }
     }
 
     /// Name of the [crate::benchmarks::Benchmarks] suite that was analyzed
@@ -37,15 +56,24 @@ impl AnalysisResult {
         &self.new_series
     }
 
-    /// [BenchmarkComparison] values for each series
-    pub fn results(&self) -> &HashMap<String, BenchmarkComparison> {
-        &self.results
+    /// Series that are equal within provided threshold
+    pub fn equal_series(&self) -> &HashMap<String, HashMap<String, BenchmarkComparison>> {
+        &self.equal_series
+    }
+
+    /// Series that are divergent within provided threshold
+    pub fn divergent_series(&self) -> &HashMap<String, HashMap<String, BenchmarkComparison>> {
+        &self.divergent_series
+    }
+
+    /// Series that are divergent within provided threshold
+    pub fn results(&self) -> &HashMap<String, HashMap<String, BenchmarkComparison>> {
+        self.divergent_series()
     }
 }
 
-impl ToString for AnalysisResult {
-    /// Produce a pretty printed JSON string of this result
-    fn to_string(&self) -> String {
-        serde_json::to_string_pretty(&self).unwrap()
+impl Display for AnalysisResult {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", serde_json::to_string_pretty(&self).unwrap())
     }
 }

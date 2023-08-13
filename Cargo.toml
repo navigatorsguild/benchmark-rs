@@ -2,13 +2,13 @@
 name = "benchmark-rs"
 authors = ["Giora Kosoi"]
 license = "MIT OR Apache-2.0"
-description = "Benchamrks for Rust libraries"
+description = "Benchmarks for Rust libraries"
 homepage = "https://www.navigatorsguild.io/"
 repository = "https://github.com/navigatorsguild/benchmark-rs"
 readme = "README.md"
-keywords = ["bench", "benchmark", "benchmarking", "profiling"]
+keywords = ["bench", "benchmark", "benchmarking", "profiling", "performance"]
 categories = ["development-tools::profiling"]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 [badges]

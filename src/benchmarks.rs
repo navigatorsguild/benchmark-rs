@@ -20,10 +20,11 @@ use crate::summary::Summary;
 /// * `W` - workload unit
 /// * `E` - error type
 ///
-pub struct Benchmarks<C, W, E> where
+pub struct Benchmarks<C, W, E>
+where
     C: Clone + Display,
     W: Clone + Display,
-    Error: From<E>
+    Error: From<E>,
 {
     name: String,
     names: HashSet<String>,
@@ -31,11 +32,11 @@ pub struct Benchmarks<C, W, E> where
     summaries: HashMap<String, SeriesSummary>,
 }
 
-
-impl<C, W, E> Benchmarks<C, W, E> where
+impl<C, W, E> Benchmarks<C, W, E>
+where
     C: Clone + Display,
     W: Clone + Display,
-    Error: From<E>
+    Error: From<E>,
 {
     /// Create a new [Benchmarks]
     ///
@@ -70,14 +71,32 @@ impl<C, W, E> Benchmarks<C, W, E> where
     /// * `ramp_up` - number of times the benchmark will be performed before the measurement is
     /// taken
     ///
-    pub fn add(&mut self, name: &str, f: fn(stop_watch: &mut StopWatch, config: C, workload_point: W) -> Result<(), E>, config: C, work: Vec<W>, repeat: usize, ramp_up: usize) -> Result<(), Error> {
+    pub fn add(
+        &mut self,
+        name: &str,
+        f: fn(stop_watch: &mut StopWatch, config: C, workload_point: W) -> Result<(), E>,
+        config: C,
+        work: Vec<W>,
+        repeat: usize,
+        ramp_up: usize,
+    ) -> Result<(), Error> {
         let exists = !self.names.insert(name.to_string());
         if exists {
-            Err(anyhow!("Benchmark with identical name exists: {}", name.to_string()))
+            Err(anyhow!(
+                "Benchmark with identical name exists: {}",
+                name.to_string()
+            ))
         } else if repeat == 0 {
             Err(anyhow!("Cannot benchmark 0 runs"))
         } else {
-            self.benchmarks.push(Benchmark::new(name.to_string(), f, config, work, repeat, ramp_up));
+            self.benchmarks.push(Benchmark::new(
+                name.to_string(),
+                f,
+                config,
+                work,
+                repeat,
+                ramp_up,
+            ));
             Ok(())
         }
     }
@@ -99,7 +118,11 @@ impl<C, W, E> Benchmarks<C, W, E> where
 
     /// Produce summary for each series as vector of CSV lines. The key for series data is the
     /// series name used in [Self::add] method, values are placed as the headers returned by [Self::csv_headers]
-    pub fn summary_as_csv(&self, with_headers: bool, with_config: bool) -> HashMap<String, Vec<String>> {
+    pub fn summary_as_csv(
+        &self,
+        with_headers: bool,
+        with_config: bool,
+    ) -> HashMap<String, Vec<String>> {
         let mut result = HashMap::new();
         for (name, summary) in &self.summaries {
             result.insert(name.clone(), summary.as_csv(with_headers, with_config));
@@ -120,7 +143,12 @@ impl<C, W, E> Benchmarks<C, W, E> where
     /// let benchmarks = Benchmarks::<usize, usize, anyhow::Error>::new("example");
     /// benchmarks.save_to_csv(PathBuf::from("./target/benchmarks"), true, true).expect("failed to save to csv");
     /// ```
-    pub fn save_to_csv(&self, dir: PathBuf, with_headers: bool, with_config: bool) -> Result<(), anyhow::Error> {
+    pub fn save_to_csv(
+        &self,
+        dir: PathBuf,
+        with_headers: bool,
+        with_config: bool,
+    ) -> Result<(), anyhow::Error> {
         if !dir.exists() {
             create_dir_all(&dir)?;
         }
@@ -130,7 +158,7 @@ impl<C, W, E> Benchmarks<C, W, E> where
             results_path.set_extension("csv");
             let mut results_writer = BufWriter::new(
                 File::create(&results_path)
-                    .with_context(|| anyhow!("path: {}", results_path.to_string_lossy()))?
+                    .with_context(|| anyhow!("path: {}", results_path.to_string_lossy()))?,
             );
             for record in series {
                 writeln!(results_writer, "{}", record)?;
@@ -158,12 +186,11 @@ impl<C, W, E> Benchmarks<C, W, E> where
         results_path.set_extension("json");
         let mut writer = BufWriter::new(
             File::create(&results_path)
-                .with_context(|| anyhow!("path: {}", results_path.to_string_lossy()))?
+                .with_context(|| anyhow!("path: {}", results_path.to_string_lossy()))?,
         );
-        writer.write(self.summary_as_json().as_bytes())?;
+        writer.write_all(self.summary_as_json().as_bytes())?;
         Ok(())
     }
-
 
     /// Produce description of configurations for each series. The key for series config is the
     /// series name used in [Self::add] method.
@@ -180,72 +207,72 @@ impl<C, W, E> Benchmarks<C, W, E> where
         &self.name
     }
 
-    fn compare_median(point: &String, current: u64, previous: u64, threshold: f64) -> BenchmarkComparison {
+    fn compare_median(
+        point: &str,
+        current: u64,
+        previous: u64,
+        threshold: f64,
+    ) -> BenchmarkComparison {
         let change = (current as f64 / (previous as f64 / 100.0)) - 100.0;
-        let point = point.clone();
-        if current == previous {
+        let point = point.to_owned();
+        if (current == previous) || (change.abs() <= threshold.abs()) {
             BenchmarkComparison::Equal {
                 point,
                 previous,
                 current,
                 change,
             }
-        } else if change.abs() <= threshold.abs() {
-            BenchmarkComparison::Equal {
+        } else if change < 0.0 {
+            BenchmarkComparison::Less {
                 point,
                 previous,
                 current,
                 change,
             }
         } else {
-            if change < 0.0 {
-                BenchmarkComparison::Less {
-                    point,
-                    previous,
-                    current,
-                    change,
-                }
-            } else {
-                BenchmarkComparison::Greater {
-                    point,
-                    previous,
-                    current,
-                    change,
-                }
+            BenchmarkComparison::Greater {
+                point,
+                previous,
+                current,
+                change,
             }
         }
     }
 
-    fn compare_series(current_series: &Vec<(String, RunSummary)>, previous_series: &Vec<(String, RunSummary)>, threshold: f64) -> Result<BenchmarkComparison, Error> {
-        let current_points: Vec<String> = current_series.into_iter()
+    fn compare_series(
+        current_series: &[(String, RunSummary)],
+        previous_series: &[(String, RunSummary)],
+        threshold: f64,
+    ) -> Result<HashMap<String, BenchmarkComparison>, Error> {
+        let current_points: Vec<String> = current_series
+            .iter()
             .map(|(point, _run_summary)| point.clone())
             .collect();
-        let previous_points: Vec<String> = previous_series.into_iter()
+        let previous_points: Vec<String> = previous_series
+            .iter()
             .map(|(point, _run_summary)| point.clone())
             .collect();
 
         if current_points.is_empty() || previous_points.is_empty() {
             Err(anyhow!("Can compare only non empty series"))
         } else if current_points != previous_points {
-            Err(anyhow!("Can compare series with identical points only"))
+            Err(anyhow!(
+                "Can compare series with identical workload points only"
+            ))
         } else {
-            let mut benchmark_comparison = BenchmarkComparison::Equal {
-                point: "".to_string(),
-                previous: 0,
-                current: 0,
-                change: 0.0,
-            };
-            for (i, (point, current_run_summary)) in current_series.into_iter().enumerate() {
-                benchmark_comparison = Self::compare_median(
-                    point,
-                    current_run_summary.median_nanos(),
+            let mut comparisons = HashMap::new();
+            for i in 0..current_series.len() {
+                let point = current_series[i].0.clone();
+                let comparison = Self::compare_median(
+                    point.as_str(),
+                    current_series[i].1.median_nanos(),
                     previous_series[i].1.median_nanos(),
                     threshold,
                 );
+
+                comparisons.insert(point, comparison);
             }
-            Ok(
-                benchmark_comparison
-            )
+            Ok(comparisons)
         }
     }
 
@@ -253,18 +280,24 @@ impl<C, W, E> Benchmarks<C, W, E> where
     ///
     /// * `prev_result_string_opt` - a JSON string of the [Summary] of previous run
     /// * `threshold` - threshold used to determine equality.
-    pub fn analyze(&self, prev_result_string_opt: Option<String>, threshold: f64) -> Result<AnalysisResult, Error> {
+    pub fn analyze(
+        &self,
+        prev_result_string_opt: Option<String>,
+        threshold: f64,
+    ) -> Result<AnalysisResult, Error> {
         let current_summary = self.summary();
         let prev_summary = match prev_result_string_opt {
-            None => {
-                Summary::new(self.name().clone())
-            }
+            None => Summary::new(self.name().clone()),
             Some(prev_result_string) => {
                 serde_json::from_str::<Summary>(prev_result_string.as_str())?
             }
         };
         if current_summary.name() != prev_summary.name() {
-            Err(anyhow!("Comparing differently named benchmarks.rs: {} <=> {}", current_summary.name(), prev_summary.name()))
+            Err(anyhow!(
+                "Comparing differently named benchmarks.rs: {} <=> {}",
+                current_summary.name(),
+                prev_summary.name()
+            ))
         } else {
             let mut analysis_result = AnalysisResult::new(current_summary.name().clone());
             for (name, current_series_summary) in current_summary.series() {
@@ -273,12 +306,12 @@ impl<C, W, E> Benchmarks<C, W, E> where
                         analysis_result.add_new(name.clone());
                     }
                     Some(prev_series_summary) => {
-                        let ordering = Self::compare_series(
+                        let comparisons = Self::compare_series(
                             current_series_summary.runs(),
                             prev_series_summary.runs(),
                             threshold,
                         )?;
-                        analysis_result.add(name.clone(), ordering);
+                        analysis_result.add(name.clone(), comparisons);
                     }
                 }
             }
