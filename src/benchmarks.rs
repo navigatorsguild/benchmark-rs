@@ -62,14 +62,14 @@ where
     /// Create and add a Benchmark
     ///
     /// * `name` - the name of the benchmark series. The result will be accessible by the name as
-    /// a key from the summary.
+    ///   a key from the summary.
     /// * `f` - the function that runs the benchmark.
     /// * `config` - the configuration value for this benchmark series
     /// * `work` - workload points vector for this benchmark series. Elements of this vector are
-    /// passed to `f` in each iteration
+    ///   passed to `f` in each iteration
     /// * `repeat` - number of times the benchmark will be repeated
     /// * `ramp_up` - number of times the benchmark will be performed before the measurement is
-    /// taken
+    ///   taken
     ///
     pub fn add(
         &mut self,
@@ -84,7 +84,7 @@ where
         if exists {
             Err(anyhow!(
                 "Benchmark with identical name exists: {}",
-                name.to_string()
+                name
             ))
         } else if repeat == 0 {
             Err(anyhow!("Cannot benchmark 0 runs"))

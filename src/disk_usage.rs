@@ -1,12 +1,10 @@
-use std::io::ErrorKind;
 use std::path::PathBuf;
 
 /// Measure disk usage for a path
 #[allow(dead_code)]
 pub fn disk_usage(path: &PathBuf) -> std::io::Result<u64> {
     if !path.exists() {
-        Err(std::io::Error::new(
-            ErrorKind::Other,
+        Err(std::io::Error::other(
             format!("path does not exist: [{}]", path.to_string_lossy()),
         ))
     } else {
