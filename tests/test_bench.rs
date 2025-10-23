@@ -132,7 +132,7 @@ fn test_analyze_different_runs_same_configuration() -> Result<(), anyhow::Error>
         bench_sort,
         BenchConfig::new(10),
         work.clone(),
-        2,
+        30,
         1,
     )?;
     benchmarks0.run()?;
@@ -151,7 +151,7 @@ fn test_analyze_different_runs_same_configuration() -> Result<(), anyhow::Error>
         bench_sort,
         BenchConfig::new(10),
         work.clone(),
-        2,
+        30,
         1,
     )?;
     benchmarks.run()?;
@@ -172,7 +172,7 @@ fn test_analyze_different_runs_same_configuration() -> Result<(), anyhow::Error>
         bench_sort,
         BenchConfig::new(10),
         work.clone(),
-        2,
+        30,
         1,
     )?;
     benchmarks2.run()?;
