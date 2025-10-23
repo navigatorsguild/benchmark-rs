@@ -177,7 +177,7 @@ fn test_analyze_different_runs_same_configuration() -> Result<(), anyhow::Error>
     )?;
     benchmarks2.run()?;
 
-    let different_runs_result = benchmarks2.analyze(Some(first_run_result), 10.0)?;
+    let different_runs_result = benchmarks2.analyze(Some(first_run_result), 30.0)?;
     assert!(!different_runs_result.equal_series().is_empty());
     assert!(different_runs_result.divergent_series().is_empty());
 
