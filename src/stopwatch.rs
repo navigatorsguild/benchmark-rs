@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter};
 use std::ops::AddAssign;
 use std::time::{Duration, Instant};
 
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::{DateTime, Utc};
 
 /// Measure elapsed time
 pub struct StopWatch {
@@ -71,14 +71,11 @@ impl Display for StopWatch {
                 self.checkpoint.elapsed().as_nanos() as u64
             ));
         }
-        let datetime = DateTime::<Utc>::from_utc(
-            NaiveDateTime::from_timestamp_opt(
-                accumulated.as_secs() as i64,
-                accumulated.subsec_nanos(),
-            )
-            .unwrap(),
-            Utc,
-        );
+        let datetime = DateTime::<Utc>::from_timestamp(
+            accumulated.as_secs() as i64,
+            accumulated.subsec_nanos(),
+        )
+        .unwrap();
         let formatted_time = datetime.format("%H:%M:%S.%3f").to_string();
         f.write_fmt(format_args!("{}", formatted_time))
     }

@@ -1,4 +1,4 @@
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::{DateTime, Utc};
 use num_traits::cast::ToPrimitive;
 use serde::{Deserialize, Serialize};
 
@@ -73,8 +73,7 @@ impl RunSummary {
 
     fn format_elapsed_nanos(t: u64) -> String {
         let (secs, nsecs) = ((t / 1_000_000_000) as i64, (t % 1_000_000_000) as u32);
-        let datetime =
-            DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp_opt(secs, nsecs).unwrap(), Utc);
+        let datetime = DateTime::<Utc>::from_timestamp(secs, nsecs).unwrap();
         datetime.format("%H:%M:%S.%3f").to_string()
     }
 
@@ -85,10 +84,7 @@ impl RunSummary {
                 None => "null".to_string(),
                 Some(t) => {
                     let (secs, nsecs) = ((t / 1_000_000_000), (t % 1_000_000_000) as u32);
-                    let datetime = DateTime::<Utc>::from_utc(
-                        NaiveDateTime::from_timestamp_opt(secs, nsecs).unwrap(),
-                        Utc,
-                    );
+                    let datetime = DateTime::<Utc>::from_timestamp(secs, nsecs).unwrap();
                     datetime.format("%H:%M:%S.%3f").to_string()
                 }
             },
